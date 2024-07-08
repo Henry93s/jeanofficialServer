@@ -193,6 +193,17 @@ class UserService {
 
     // update by nanoid (bodyData : name, password)
     async updateById({nanoid}, bodyData){
+        // 닉네임 중복 체크 후 업데이트
+        if(bodyData.name){
+            const {name} = bodyData;
+            const nameUser = await User.findOne({name: name});
+            if(nameUser){
+                const error = new Error();
+                Object.assign(error, {code: 400, message: "중복된 닉네임입니다. 닉네임을 변경해주세요."});
+                throw error;
+            };
+        }
+
         const user = await User.findOne({nanoid});
         if(!user){
             const error = new Error();
@@ -216,6 +227,17 @@ class UserService {
 
     // update by email (bodyData : name or password)
     async updateByEmail({email}, bodyData){
+        // 닉네임 중복 체크 후 업데이트
+        if(bodyData.name){
+            const {name} = bodyData;
+            const nameUser = await User.findOne({name: name});
+            if(nameUser){
+                const error = new Error();
+                Object.assign(error, {code: 400, message: "중복된 닉네임입니다. 닉네임을 변경해주세요."});
+                throw error;
+            };
+        }
+        
         const user = await User.findOne({email});
         if(!user){
             const error = new Error();

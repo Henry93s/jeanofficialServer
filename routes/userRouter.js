@@ -64,7 +64,7 @@ router.delete('/:nanoid', reqUserCheck, asyncHandler(async (req,res) => {
 // delete by email
 router.post('/deleteByEmail', asyncHandler(async (req,res) => {
     const {email} = req.body;
-
+    console.log("asdf")
     const result = await userService.deleteByEmail({email});
     return res.status(200).json(result);
 }));
