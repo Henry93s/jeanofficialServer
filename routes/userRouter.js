@@ -35,8 +35,8 @@ router.post('/email', asyncHandler(async (req, res) => {
     return res.status(200).json(result);
 }));
 
-// update by nanoid (bodyData : name or password or address or birthday or gender)
-router.put('/:nanoid', reqUserCheck, isAdminNanoid, asyncHandler(async (req, res) => {
+// update by nanoid (bodyData : name or password)
+router.put('/:nanoid', asyncHandler(async (req, res) => {
     const {nanoid} = req.params;
 
     const bodyData = req.body;
@@ -44,8 +44,8 @@ router.put('/:nanoid', reqUserCheck, isAdminNanoid, asyncHandler(async (req, res
     return res.status(200).json(result);
 }));
 
-// update by email (bodyData : name or password or address or birthday or gender)
-router.put('/', reqUserCheck, isAdminEmail, asyncHandler(async (req, res) => {
+// update by email (bodyData : name or password)
+router.put('/', asyncHandler(async (req, res) => {
     const {email} = req.body;
     const bodyData = req.body;
 
@@ -54,7 +54,7 @@ router.put('/', reqUserCheck, isAdminEmail, asyncHandler(async (req, res) => {
 }));
 
 // delete by nanoid
-router.delete('/:nanoid', reqUserCheck, isAdminNanoid, asyncHandler(async (req,res) => {
+router.delete('/:nanoid', reqUserCheck, asyncHandler(async (req,res) => {
     const {nanoid} = req.params;
 
     const result = await userService.deleteById({nanoid});
@@ -62,7 +62,7 @@ router.delete('/:nanoid', reqUserCheck, isAdminNanoid, asyncHandler(async (req,r
 }));
 
 // delete by email
-router.post('/deleteByEmail', reqUserCheck, isAdminEmail, asyncHandler(async (req,res) => {
+router.post('/deleteByEmail', asyncHandler(async (req,res) => {
     const {email} = req.body;
 
     const result = await userService.deleteByEmail({email});
@@ -82,5 +82,12 @@ router.post('/verify/confirm', asyncHandler(async (req, res) => {
     const result = await userService.joinVerifyConfirm({email, secret});
     return res.status(200).json(result);
 }));
+
+// 비밀번호 찾기 시 이메일 인증 요청
+router.post('/verify/findpw', asyncHandler(async (req, res) => {
+    const {email} = req.body;
+    const result = await userService.pwfindVerify({email});
+    return res.status(200).json(result);
+}))
 
 module.exports = router;
