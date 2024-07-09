@@ -12,31 +12,31 @@ const jwt = require('jsonwebtoken');
 const secret = process.env.COOKIE_SECRET;
 
 // 처음 로그인 했을 때 클라이언트에 줄 토큰에다가 signature(secret) 으로 서명 후 전달함.
+// cors 로 react 연동하여 확인 시 sameSite: "none", secure: "false" 사용 !
 const setUserToken = (res, user) => {
     const token = jwt.sign(user, secret);
-    res.cookie('token', token);
+    res.cookie('token', token,{
+        sameSite: "none",
+        secure: "false"
+    });
 };
 
 const router = Router();
 
-// page sendfile
-router.get('/', (req, res) => {
-    return res.sendFile(path.join(__dirname + "/../src/FE/Login/Login.html"));
-});
-
 // login
+// loginCheck : 이메일 또는 패스워드 입력 확인, 이메일 형식 체크
 router.post('/auth', loginCheck, passport.authenticate('local', {session: false}), (req, res, next) => {
     // 로그인 성공 했을 때 클라이언트에 줄 토큰에다가 signature(secret) 으로 서명 후 전달함.
     setUserToken(res, req.user);
     if(req.user && req.user.is_passwordReset){
-        return res.status(200).json({message: "임시 비밀번호 로그인입니다. 비밀번호 변경이 필요합니다.", href: "/newpassword"});
+        return res.status(200).json({code: 201, message: "임시 비밀번호 로그인입니다. 비밀번호 변경이 필요합니다.", href: "/findpw"});
     }
 
     if(req.user && req.user.is_admin){
-        return res.status(200).json({message: "관리자 로그인에 성공하였습니다.", href: "/admin"});
+        return res.status(200).json({code: 202, message: "관리자 로그인에 성공하였습니다.", href: "/admin"});
     }
     // 일반 로그인 성공 알림
-    return res.status(200).json({message: "로그인에 성공하였습니다.", href: "/"});
+    return res.status(200).json({code: 200, message: "로그인에 성공하였습니다.", href: "/"});
 });
 
 // 비밀번호 찾기 페이지에서 찾으려는 이메일을 입력 후 임시 비밀번호 발송

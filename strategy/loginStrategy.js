@@ -15,13 +15,17 @@ const local = new LocalStrategy(config, async(email, password, done) => {
         // 기본 로그인 동작 strategy 로 들어오는 email 로 유저 조회
         const user = await User.findOne({email});
         if(!user){
-            throw new Error('회원을 찾을 수 없습니다.');
+            const error = new Error();
+            Object.assign(error, {code: 404, message: "회원을 찾을 수 없습니다."});
+            throw error;
         }
         // password 일치 여부 검사
         // sha256 단방향 해시 비밀번호 사용
         const hash = crypto.createHash('sha256').update(password).digest('hex');
         if(user.password !== hash){
-            throw new Error('비밀번호가 일치하지 않습니다.');
+            const error = new Error();
+            Object.assign(error, {code: 404, message: "비밀번호가 일치하지 않습니다."});
+            throw error;
         }
 
         // 정상 done 콜백 함수 호출
