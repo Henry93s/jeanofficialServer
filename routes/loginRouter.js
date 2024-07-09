@@ -15,10 +15,7 @@ const secret = process.env.COOKIE_SECRET;
 // cors 로 react 연동하여 확인 시 sameSite: "none", secure: "false" 사용 !
 const setUserToken = (res, user) => {
     const token = jwt.sign(user, secret);
-    res.cookie('token', token,{
-        sameSite: "none",
-        secure: "false"
-    });
+    res.cookie('token', token);
 };
 
 const router = Router();
