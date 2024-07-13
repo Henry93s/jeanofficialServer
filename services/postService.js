@@ -57,6 +57,55 @@ class PostService {
         return {data: data, code: 200, message: `글 작성 완료`};
     };
 
+    // 글 수정 (완료)
+    async putPost({email, title, content, nanoid}){
+        const author = await User.findOne({email});
+        if(!author) { 
+            const error = new Error();
+            Object.assign(error, {code: 400, message: "유저 정보를 가져오지 못했습니다. 다시 확인해주세요."});
+            throw error;
+        }
+        const post = await Post.findOne({nanoid}).populate('author');
+        if(!post) { 
+            const error = new Error();
+            Object.assign(error, {code: 400, message: "글 정보를 가져오지 못했습니다. 다시 확인해주세요."});
+            throw error;
+        }
+        if(post.author.email !== email) { 
+            const error = new Error();
+            Object.assign(error, {code: 403, message: "글 작성자가 아닙니다. 다시 확인해주세요."});
+            throw error;
+        }
+        const updateAt = new Date().toLocaleString();
+        const data = await Post.updateOne({nanoid},{title, content, updateAt});
+        console.log(data);
+        return {data: data, code: 200, message: `글 수정 완료`};
+    }
+
+    // 글 삭제 (완료)
+    async delPost({email, nanoid}){
+        const author = await User.findOne({email});
+        if(!author) { 
+            const error = new Error();
+            Object.assign(error, {code: 400, message: "유저 정보를 가져오지 못했습니다. 다시 확인해주세요."});
+            throw error;
+        }
+        const post = await Post.findOne({nanoid}).populate('author');
+        if(!post) { 
+            const error = new Error();
+            Object.assign(error, {code: 400, message: "글 정보를 가져오지 못했습니다. 다시 확인해주세요."});
+            throw error;
+        }
+        if(post.author.email !== email) { 
+            const error = new Error();
+            Object.assign(error, {code: 403, message: "글 작성자가 아닙니다. 다시 확인해주세요."});
+            throw error;
+        }
+        const data = await Post.deleteOne({nanoid});
+        console.log(data);
+        return {data: data, code: 200, message: `글 삭제 완료`};
+    }
+
     // 글 읽기 (완료)
     async getPost({nanoid}){
         const post = await Post.findOne({nanoid}).populate('author');

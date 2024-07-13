@@ -56,40 +56,17 @@ router.post('/getput', asyncHandler(async (req, res) => {
 
 // 글 수정
 router.post('/put', asyncHandler(async (req, res) => {
-    const {title, content}= req.body;
-    const __id = req.params.__id;
-    const author = await User.findOne({
-        __id: req.user.__id
-    });
-    if(!author) { throw new Error('Session user can\'t find in UserDB'); }
-    const updateAt = new Date().toLocaleString();
-    // findOneAndUpdate?
-    await Post.updateOne({__id},{title, content, updateAt});
-    res.redirect('/posts?page=1&myposts=false');
+    const {email, title, content, nanoid} = req.body;
+    const result = await postService.putPost({email, title, content, nanoid});
+    return res.status(200).json(result);
 }));
 
 
 // 글 삭제
-router.delete('/delete', asyncHandler(async (req, res) => {
-    if(!req.user){
-        res.statusCode = 401;
-        res.json({deletes: "notlogin"});
-        return;
-    }
-
-    const query = {
-        __id: req.params.__id
-    };
-    const post = await Post.findOne(query).populate('author');
-    if(post.author.email === req.user.email){
-        await Post.deleteOne(query);
-        res.statusCode = 201;
-        res.status(200).json({deletes: "ok"});
-        return;
-    } else {
-        res.statusCode = 400;
-        res.status(403).json({deletes: "notok"});
-    }
+router.delete('/del', asyncHandler(async (req, res) => {
+    const {email, nanoid} = req.body;
+    const result = await postService.delPost({email, nanoid});
+    return res.status(200).json(result);
 }));
 
 module.exports = router;
