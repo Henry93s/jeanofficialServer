@@ -14,6 +14,7 @@ const jwtMiddleware = require('./middlewares/jwtMiddleware');
 // server router
 const userRouter = require('./routes/userRouter');
 const loginRouter = require('./routes/loginRouter');
+const postRouter = require('./routes/postsRouter');
 
 const app = express();
 
@@ -47,9 +48,10 @@ mongoose.connection.on('err', (err) => {
     console.log("mongoDB err");
 });
 
-// user, login router
+// user, login, post router
 app.use('/users', userRouter);
 app.use('/login', loginRouter);
+app.use('/post', postRouter);
 
 // (테스트용) 로그인한 정보 확인 시 전달 라우터
 app.get('/getuser', asyncHandler(async (req, res) => {
