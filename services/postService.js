@@ -47,6 +47,43 @@ class PostService {
         };
         return data;
     }
+
+    // 검색어와 검색 타겟(셀렉트 박스) 에 맞는 글 리스트 가져오기 (완료)
+    async getSearchPosts({search, searchtarget, nowpage}) {
+        const page = Number(nowpage);
+        const perPage = 10; 
+        // search(검색어), searchtarget(검색 타겟 셀렉트 박스) 값 추출 작업 
+        const dbtarget = searchtarget === "작성자" ? "name" 
+        : searchtarget === "제목" ? "title" 
+        : "content";
+
+        const posts = await Post.find().sort(({createAt: -1})).skip(perPage * (page - 1))
+        .limit(perPage).populate('author');
+
+        // 일단 전체 글을 가져오고 filter 로 검색어 검색 타겟에 맞는 데이터 추출 작업 진행함
+        const retPosts = posts.filter(v => {
+            // searchtarget 이 작성자.이름(닉네임) 일 때
+            if(dbtarget === "name" && v['author'][dbtarget].includes(search)){
+                return v;
+            }
+            // searchtarget 이 제목 또는 내용 일 때 
+            if(dbtarget !== "name" && v[dbtarget].includes(search)) {
+                return v;
+            }
+        });
+        const total = retPosts.length;
+        const totalPage = Math.ceil(total/perPage);
+    
+        const data = {
+            page: page,
+            perPage: perPage,
+            total: total,
+            posts: retPosts,
+            totalPage: totalPage
+        };
+
+        return data;
+    }
     
     // 글 쓰기 (완료)
     async writePost({email, title, content}){

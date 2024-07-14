@@ -19,6 +19,13 @@ router.post('/getmyposts', asyncHandler(async (req,res) => {
     return res.status(200).json(result);
 }));
 
+// 검색어와 검색 타겟(셀렉트 박스) 에 맞는 글 리스트 가져오기 (완료)
+router.get('/getsearchposts/:nowpage/:searchtarget/:search', asyncHandler(async (req, res) => {
+    const {search, searchtarget, nowpage} = req.params;
+    const result = await postService.getSearchPosts({search, searchtarget, nowpage});
+    return res.status(200).json(result);
+}));
+
 
 // 글 내용 요청 라우터 (완료)
 router.get('/read/:nanoid', asyncHandler(async (req, res) => {
