@@ -1,4 +1,4 @@
-const {User, Verify} = require('../models');
+const {User, Verify, Post} = require('../models');
 const code = require('../utils/data/code');
 const generateRandomValue = require('../utils/generate-random-value');
 const sendEmail = require('../utils/nodemailer');
@@ -274,6 +274,7 @@ class UserService {
     }
 
     // delete by email
+    // 회원 탈퇴 시 1. 작성한 글 데이터 삭제 !!
     async deleteByEmail({email}) {
         const user = await User.findOne({email});
         if(!user){
@@ -281,7 +282,9 @@ class UserService {
             Object.assign(error, {code: 404, message: "이메일로 조회된 회원이 없습니다."})
             throw error;
         } else {
+            await Post.deleteMany({author: user});
             await User.deleteOne(user);
+            
             return {code: 200, message: `${email} 사용자 삭제 동작 완료`};
         }
     }
