@@ -2,11 +2,20 @@ const {User, Post, Like} = require('../models');
 
 class PostService {
     // 전체 글 중 1 페이지 또는 특정 페이지의 글 리스트 가져오기 (완료)
-    async getAllposts({nowpage}){
+    async getAllposts({nowpage, likesort}){
         const page = Number(nowpage);
-        const perPage = 10; 
-        const posts = await Post.find().sort(({createAt: -1})).skip(perPage * (page - 1))
-        .limit(perPage).populate('author');
+        const perPage = 10;
+        // 좋아요 순 정렬 되어 있을 때 와 아닐 때 정렬 구분하여 처리
+        let posts = [];
+
+        if(likesort === "true"){
+            posts = await Post.find().sort(({up: -1})).skip(perPage * (page - 1))
+            .limit(perPage).populate('author');
+        } else {
+            posts = await Post.find().sort(({createAt: -1})).skip(perPage * (page - 1))
+            .limit(perPage).populate('author');
+        }
+        
         const total = await Post.countDocuments();
         const totalPage = Math.ceil(total/perPage);
     
@@ -22,7 +31,7 @@ class PostService {
     }
 
     // 내 글 중 1 페이지 또는 특정 페이지의 글 리스트 가져오기 (완료)
-    async getMyposts({email, nowpage}){ 
+    async getMyposts({email, nowpage, likesort}){ 
         const author = await User.findOne({email});
         if(!author) { 
             const error = new Error();
@@ -31,11 +40,19 @@ class PostService {
         }
         const page = Number(nowpage);
         const perPage = 10; 
-        // 여기서 sort 는 몽구스 전용 sort !
+
         // skip(n): 처음 n개의 요소를 건너뜀
         // limit(n): n개의 요소만 가져옴
-        const posts = await Post.find({author: author}).sort(({createAt: -1})).skip(perPage * (page - 1))
-        .limit(perPage).populate('author');
+        // 좋아요 순 정렬 되어 있을 때 와 아닐 때 정렬 구분하여 처리
+        let posts = [];
+        if(likesort === "true"){
+            posts = await Post.find({author: author}).sort(({up: -1})).skip(perPage * (page - 1))
+            .limit(perPage).populate('author');
+        } else {
+            posts = await Post.find({author: author}).sort(({createAt: -1})).skip(perPage * (page - 1))
+            .limit(perPage).populate('author');
+        }
+
         // pupulate 를 추가하여 User 의 objectID 와 같은 데이터를 JOIN
         const total = await Post.countDocuments({author: author});
         const totalPage = Math.ceil(total/perPage);
@@ -51,7 +68,7 @@ class PostService {
     }
 
     // 검색어와 검색 타겟(셀렉트 박스) 에 맞는 글 리스트 가져오기 (완료)
-    async getSearchPosts({search, searchtarget, nowpage}) {
+    async getSearchPosts({search, searchtarget, nowpage, likesort}) {
         const page = Number(nowpage);
         const perPage = 10; 
         // search(검색어), searchtarget(검색 타겟 셀렉트 박스) 값 추출 작업 
@@ -73,9 +90,16 @@ class PostService {
             }
         });
 
+        // 좋아요 순 정렬 되어 있을 때 와 아닐 때 정렬 구분하여 처리
         // 정렬과 페이지 처리를 db 가 아닌 전체 글을 가져온 배열에서 자바스크립트 문법으로 진행함.
-        const retPosts = fetchPosts.sort((a, b) => new Date(b.createAt) - new Date(a.createAt))
-        .slice(perPage * (page - 1), perPage * page);
+        let retPosts = [];
+        if(likesort === "true"){
+            retPosts = fetchPosts.sort((a, b) => b.up - a.up)
+            .slice(perPage * (page - 1), perPage * page);
+        } else {
+            retPosts = fetchPosts.sort((a, b) => new Date(b.createAt) - new Date(a.createAt))
+            .slice(perPage * (page - 1), perPage * page);
+        }
 
         const total = fetchPosts.length;
         const totalPage = Math.ceil(total/perPage);

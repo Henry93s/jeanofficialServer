@@ -4,23 +4,23 @@ const asyncHandler = require('../middlewares/async-handler');
 const postService = require('../services/postService');
 
 // 전체 글 중 1 페이지 또는 특정 페이지의 글 리스트 가져오기 (완료)
-router.get('/getallposts/:nowpage', asyncHandler(async (req,res) => { 
-    const {nowpage} = req.params;
-    const result = await postService.getAllposts({nowpage});
+router.get('/getallposts/:nowpage/:likesort', asyncHandler(async (req,res) => { 
+    const {nowpage, likesort} = req.params;
+    const result = await postService.getAllposts({nowpage, likesort});
     return res.status(200).json(result);
 }));
 
 // 내 글 중 1 페이지 또는 특정 페이지의 글 리스트 가져오기 (완료)
 router.post('/getmyposts', asyncHandler(async (req,res) => { 
-    const {email, nowpage} = req.body;
-    const result = await postService.getMyposts({email, nowpage});
+    const {email, nowpage, likesort} = req.body;
+    const result = await postService.getMyposts({email, nowpage, likesort});
     return res.status(200).json(result);
 }));
 
 // 검색어와 검색 타겟(셀렉트 박스) 에 맞는 글 리스트 가져오기 (완료)
-router.get('/getsearchposts/:nowpage/:searchtarget/:search', asyncHandler(async (req, res) => {
-    const {search, searchtarget, nowpage} = req.params;
-    const result = await postService.getSearchPosts({search, searchtarget, nowpage});
+router.get('/getsearchposts/:nowpage/:searchtarget/:search/:likesort', asyncHandler(async (req, res) => {
+    const {search, searchtarget, nowpage, likesort} = req.params;
+    const result = await postService.getSearchPosts({search, searchtarget, nowpage, likesort});
     return res.status(200).json(result);
 }));
 
