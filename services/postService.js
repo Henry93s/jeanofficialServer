@@ -32,6 +32,8 @@ class PostService {
         const page = Number(nowpage);
         const perPage = 10; 
         // 여기서 sort 는 몽구스 전용 sort !
+        // skip(n): 처음 n개의 요소를 건너뜀
+        // limit(n): n개의 요소만 가져옴
         const posts = await Post.find({author: author}).sort(({createAt: -1})).skip(perPage * (page - 1))
         .limit(perPage).populate('author');
         // pupulate 를 추가하여 User 의 objectID 와 같은 데이터를 JOIN
@@ -57,11 +59,10 @@ class PostService {
         : searchtarget === "제목" ? "title" 
         : "content";
 
-        const posts = await Post.find().sort(({createAt: -1})).skip(perPage * (page - 1))
-        .limit(perPage).populate('author');
+        const posts = await Post.find().populate('author');
 
         // 일단 전체 글을 가져오고 filter 로 검색어 검색 타겟에 맞는 데이터 추출 작업 진행함
-        const retPosts = posts.filter(v => {
+        const fetchPosts = posts.filter(v => {
             // searchtarget 이 작성자.이름(닉네임) 일 때
             if(dbtarget === "name" && v['author'][dbtarget].includes(search)){
                 return v;
@@ -71,7 +72,12 @@ class PostService {
                 return v;
             }
         });
-        const total = retPosts.length;
+
+        // 정렬과 페이지 처리를 db 가 아닌 전체 글을 가져온 배열에서 자바스크립트 문법으로 진행함.
+        const retPosts = fetchPosts.sort((a, b) => new Date(b.createAt) - new Date(a.createAt))
+        .slice(perPage * (page - 1), perPage * page);
+
+        const total = fetchPosts.length;
         const totalPage = Math.ceil(total/perPage);
     
         const data = {
