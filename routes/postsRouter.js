@@ -1,6 +1,4 @@
 const {Router} = require('express');
-const {Post, User} = require('../models/index');
-const path = require('path');
 const router = Router();
 const asyncHandler = require('../middlewares/async-handler');
 const postService = require('../services/postService');
@@ -26,6 +24,12 @@ router.get('/getsearchposts/:nowpage/:searchtarget/:search', asyncHandler(async 
     return res.status(200).json(result);
 }));
 
+// 좋아요 버튼 동작 요청 라우터 (완료)
+router.post('/uppost', asyncHandler(async (req, res) => {
+    const {email, nanoid} = req.body;
+    const result = await postService.upPost({email, nanoid});
+    return res.status(200).json(result);
+}));
 
 // 글 내용 요청 라우터 (완료)
 router.get('/read/:nanoid', asyncHandler(async (req, res) => {

@@ -1,4 +1,4 @@
-const {User, Post} = require('../models');
+const {User, Post, Like} = require('../models');
 
 class PostService {
     // 전체 글 중 1 페이지 또는 특정 페이지의 글 리스트 가져오기 (완료)
@@ -163,7 +163,38 @@ class PostService {
         return {data: post, code: 200, message: '글 읽기 완료'};
     }
 
+    // 좋아요 기능 요청 동작 (한번 클릭 시 up, 또 같은 계정으로 같은 글 up 시 up을 취소) (완료)
+    async upPost({email, nanoid}){
+        const author = await User.findOne({email});
+        if(!author) { 
+            const error = new Error();
+            Object.assign(error, {code: 400, message: "유저 정보를 가져오지 못했습니다. 다시 확인해주세요."});
+            throw error;
+        }
+        const post = await Post.findOne({nanoid}).populate('author');
+        if(!post) { 
+            const error = new Error();
+            Object.assign(error, {code: 400, message: "글 정보를 가져오지 못했습니다. 다시 확인해주세요."});
+            throw error;
+        }
 
+        const data = await Like.findOne({email: email, post_nanoid: nanoid});
+        if(!data) {
+            // up 하지 않은 게시물 로 up 데이터 추가
+            await Like.create({email: email, post_nanoid: nanoid});
+            // post 의 + up 계산
+            const up = post.up;
+            await Post.updateOne({nanoid}, {up: up + 1});
+            return {code: 200, message: '좋아요를 추가하였습니다!'};
+        } else {
+            // 이미 up 한 게시물 로 up 데이터 제거
+            await Like.deleteOne({email: email, post_nanoid: nanoid});
+            // post 의 - up 계산
+            const up = post.up;
+            await Post.updateOne({nanoid}, {up: up - 1});
+            return {code: 200, message: '좋아요를 삭제하였습니다!'};
+        }
+    }
     
 }
 

@@ -40,10 +40,6 @@ const postSchema = new Schema({
     up: {
         type: Number,
         default: 0
-    },
-    down: {
-        type: Number,
-        default: 0
     }
 },{
     timestamps: true
