@@ -169,17 +169,6 @@ class UserService {
         return users;
     }
 
-    // findOne by nanoid
-    async findById({nanoid}) {
-        const user = await User.findOne({nanoid});
-        if(!user){
-            const error = new Error();
-            Object.assign(error, {code: 404, message: "조회된 회원이 없습니다."})
-            throw error;
-        }
-        return user;
-    }
-
     // findOne by email
     async findByEmail({email}) {
         const user = await User.findOne({email});
@@ -189,40 +178,6 @@ class UserService {
             throw error;
         }
         return {data: user, code: 200, message: "사용자 조회 완료"};
-    }
-
-    // update by nanoid (bodyData : name, password)
-    async updateById({nanoid}, bodyData){
-        // 닉네임 중복 체크 후 업데이트
-        if(bodyData.name){
-            const {name} = bodyData;
-            const nameUser = await User.findOne({name: name});
-            if(nameUser){
-                const error = new Error();
-                Object.assign(error, {code: 400, message: "중복된 닉네임입니다. 닉네임을 변경해주세요."});
-                throw error;
-            };
-        }
-
-        const user = await User.findOne({nanoid});
-        if(!user){
-            const error = new Error();
-            Object.assign(error, {code: 404, message: "조회된 회원이 없습니다."})
-            throw error;
-        } else {
-            if(bodyData.password){
-                // sha256 단방향 해시 비밀번호 사용
-                const hash = crypto.createHash('sha256').update(bodyData.password).digest('hex');
-                bodyData.password = hash
-            }
-            // update 날짜 부여
-            bodyData.update_at = new Date().toLocaleString();
-
-            Reflect.deleteProperty(bodyData, "email");
-            Reflect.deleteProperty(bodyData, "nanoid");
-            await User.updateOne(user, bodyData);
-            return {code: 200, message: `${nanoid} 사용자 수정 동작 완료`};
-        }
     }
 
     // update by email (bodyData : name or password)
@@ -257,19 +212,6 @@ class UserService {
             Reflect.deleteProperty(bodyData, "nanoid");
             await User.updateOne(user, bodyData);
             return {code: 200, message: `${email} 사용자 수정 동작 완료`};
-        }
-    }
-
-    // delete by nanoid
-    async deleteById({nanoid}) {
-        const user = await User.findOne({nanoid});
-        if(!user){
-            const error = new Error();
-            Object.assign(error, {code: 404, message: "조회된 회원이 없습니다."})
-            throw error;
-        } else {
-            await User.deleteOne(user);
-            return {code: 200, message: `${nanoid} 사용자 삭제 동작 완료`};
         }
     }
 

@@ -33,7 +33,6 @@ const local = new LocalStrategy(config, async(email, password, done) => {
             nanoid: user.nanoid,
             email: user.email,
             name: user.name,
-            is_passwordReset: user.is_passwordReset,
             is_admin: user.is_admin,
         });
     } catch(err) {

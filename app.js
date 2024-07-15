@@ -21,8 +21,8 @@ const app = express();
 // dotenv
 dotenv.config();
 
-// 모든 도메인에서 cors 허용
-app.use(cors());
+// 모든 도메인에서 cors 허용 (개발 및 테스트용)
+// app.use(cors());
 
 // body parser
 app.use(express.json());
@@ -53,9 +53,9 @@ app.use('/users', userRouter);
 app.use('/login', loginRouter);
 app.use('/post', postRouter);
 
-// (테스트용) 로그인한 정보 확인 시 전달 라우터
+// 서버에 로그인한 정보 확인 시 전달 라우터
 app.get('/getuser', asyncHandler(async (req, res) => {
-    // (테스트용) req.user 전달
+    // req.user 전달
     return res.json(req.user);
 }));
 
@@ -72,7 +72,7 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
-// error 핸들러
+// 예외 error 핸들러
 app.use((err, req, res, next) => {
     if(err.code === 401){
         console.log(err.code + " Unauthorized error 발생 : " + err.message);

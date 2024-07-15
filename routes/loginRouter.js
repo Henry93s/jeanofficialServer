@@ -1,5 +1,4 @@
 const {Router} = require('express');
-const path = require('path');
 const passport = require('passport');
 const dotenv = require('dotenv');
 const asyncHandler = require('../middlewares/async-handler');
@@ -25,10 +24,8 @@ const router = Router();
 router.post('/auth', loginCheck, passport.authenticate('local', {session: false}), (req, res, next) => {
     // 로그인 성공 했을 때 클라이언트에 줄 토큰에다가 signature(secret) 으로 서명 후 전달함.
     setUserToken(res, req.user);
-    if(req.user && req.user.is_passwordReset){
-        return res.status(200).json({code: 201, message: "임시 비밀번호 로그인입니다. 비밀번호 변경이 필요합니다.", href: "/findpw"});
-    }
 
+    // 관리자 계정 로그인 시 관리자 페이지로 이동
     if(req.user && req.user.is_admin){
         return res.status(200).json({code: 202, message: "관리자 로그인에 성공하였습니다.", href: "/admin"});
     }

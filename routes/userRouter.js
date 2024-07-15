@@ -3,7 +3,6 @@ const asyncHandler = require('../middlewares/async-handler');
 const userService = require('../services/userService');
 // 현재 사용자가 로그인했는지 체크하는 미들웨어 적용
 const reqUserCheck = require('../middlewares/reqUserCheck');
-const isAdminNanoid = require('../middlewares/isAdminNanoid');
 const isAdminEmail = require('../middlewares/isAdminEmail');
 
 const router = Router();
@@ -21,13 +20,6 @@ router.get('/', asyncHandler(async (req, res) => {
     return res.status(200).json(result);
 }));
 
-// findOne by nanoid
-router.get('/:nanoid', asyncHandler(async (req, res) => {
-    const {nanoid} = req.params;
-    const result = await userService.findById({nanoid});
-    return res.status(200).json(result);
-}));
-
 // findOne by email
 router.post('/email', asyncHandler(async (req, res) => {
     const {email} = req.body;
@@ -35,17 +27,8 @@ router.post('/email', asyncHandler(async (req, res) => {
     return res.status(200).json(result);
 }));
 
-// update by nanoid (bodyData : name or password)
-router.put('/:nanoid', asyncHandler(async (req, res) => {
-    const {nanoid} = req.params;
-
-    const bodyData = req.body;
-    const result = await userService.updateById({nanoid}, bodyData);
-    return res.status(200).json(result);
-}));
-
 // update by email (bodyData : name or password)
-router.put('/', asyncHandler(async (req, res) => {
+router.put('/', reqUserCheck, asyncHandler(async (req, res) => {
     const {email} = req.body;
     const bodyData = req.body;
 
@@ -53,16 +36,8 @@ router.put('/', asyncHandler(async (req, res) => {
     return res.status(200).json(result);
 }));
 
-// delete by nanoid
-router.delete('/:nanoid', reqUserCheck, asyncHandler(async (req,res) => {
-    const {nanoid} = req.params;
-
-    const result = await userService.deleteById({nanoid});
-    return res.status(200).json(result);
-}));
-
 // delete by email
-router.post('/deleteByEmail', asyncHandler(async (req,res) => {
+router.post('/deleteByEmail', reqUserCheck, asyncHandler(async (req,res) => {
     const {email} = req.body;
     console.log("asdf")
     const result = await userService.deleteByEmail({email});
