@@ -12,11 +12,20 @@ router.get('/getuser', asyncHandler(async (req, res) => {
         console.log("logout 상태 (server check)")
         return res.status(200).json({code: 400});
     }
-    const data = {email: req.user.email};
+    const data = {email: req.user.email, is_admin: req.user.is_admin};
     // 프론트 요청에 대해 최신 닉네임 데이터를 넘겨주기
     const result = await userService.findByEmail({email: data.email});
     data.name = result.data.name;
     return res.status(200).json({code: 200, data: data});
+}));
+
+// JWT LOGOUT : 쿠키에 있는 토큰을 비우고, 만료 기간 0 으로 설정
+// post 요청으로 url 직접 접근 차단
+router.post('/logout', reqUserCheck, asyncHandler(async (req, res) => {
+    res.cookie('token', null, {
+        maxAge: 0
+    });
+    return res.status(200).json({code: 200, message: "정상적으로 로그아웃되었습니다."});
 }));
 
 /* create (bodyData : required: true -> email, name, password */
@@ -26,8 +35,9 @@ router.post('/', asyncHandler(async (req, res) => {
     return res.status(201).json(result);
 }));
 
-// find all
-router.get('/', asyncHandler(async (req, res) => {
+// 전체 유저 조회(중요 데이터)
+// post 요청으로 url 직접 접근 차단
+router.post('/alluserdata', asyncHandler(async (req, res) => {
     const result = await userService.findAllUser();
     return res.status(200).json(result);
 }));

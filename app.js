@@ -53,14 +53,6 @@ app.use('/users', userRouter);
 app.use('/login', loginRouter);
 app.use('/post', postRouter);
 
-// JWT LOGOUT : 쿠키에 있는 토큰을 비우고, 만료 기간 0 으로 설정
-app.get('/logout', reqUserCheck, async (req, res, next) => {
-    res.cookie('token', null, {
-        maxAge: 0
-    });
-    return res.status(200).json("정상적으로 로그아웃 되었습니다.");
-});
-
 // app.get (front routing)
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/index.html'));
