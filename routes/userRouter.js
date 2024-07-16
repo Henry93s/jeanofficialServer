@@ -11,7 +11,7 @@ router.get('/getuser', asyncHandler(async (req, res) => {
     const data = {email: req.user.email};
     // 프론트 요청에 대해 최신 닉네임 데이터를 넘겨주기
     const result = await userService.findByEmail({email: data.email});
-    data.nickName = result.name;
+    data.name = result.data.name;
     return res.status(201).json({code: 200, data: data});
 }));
 
