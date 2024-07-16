@@ -3,9 +3,17 @@ const asyncHandler = require('../middlewares/async-handler');
 const userService = require('../services/userService');
 // 현재 사용자가 로그인했는지 체크하는 미들웨어 적용
 const reqUserCheck = require('../middlewares/reqUserCheck');
-const isAdminEmail = require('../middlewares/isAdminEmail');
 
 const router = Router();
+
+// 서버에 로그인한 정보 확인 시 전달 라우터
+router.get('/getuser', asyncHandler(async (req, res) => {
+    const data = {email: req.user.email};
+    // 프론트 요청에 대해 최신 닉네임 데이터를 넘겨주기
+    const result = await userService.findByEmail({email: data.email});
+    data.nickName = result.name;
+    return res.status(201).json({code: 200, data: data});
+}));
 
 /* create (bodyData : required: true -> email, name, password */
 router.post('/', asyncHandler(async (req, res) => {
@@ -28,7 +36,7 @@ router.post('/email', asyncHandler(async (req, res) => {
 }));
 
 // update by email (bodyData : name or password)
-router.put('/', reqUserCheck, asyncHandler(async (req, res) => {
+router.put('/', asyncHandler(async (req, res) => {
     const {email} = req.body;
     const bodyData = req.body;
 
@@ -39,7 +47,6 @@ router.put('/', reqUserCheck, asyncHandler(async (req, res) => {
 // delete by email
 router.post('/deleteByEmail', reqUserCheck, asyncHandler(async (req,res) => {
     const {email} = req.body;
-    console.log("asdf")
     const result = await userService.deleteByEmail({email});
     return res.status(200).json(result);
 }));

@@ -148,7 +148,6 @@ class PostService {
         }
         const updateAt = new Date().toLocaleString();
         const data = await Post.updateOne({nanoid},{title, content, updateAt});
-        console.log(data);
         return {data: data, code: 200, message: `글 수정 완료`};
     }
 
@@ -172,7 +171,6 @@ class PostService {
             throw error;
         }
         const data = await Post.deleteOne({nanoid});
-        console.log(data);
         return {data: data, code: 200, message: `글 삭제 완료`};
     }
 

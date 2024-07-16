@@ -21,7 +21,7 @@ const app = express();
 // dotenv
 dotenv.config();
 
-// 모든 도메인에서 cors 허용 (개발 및 테스트용)
+// 모든 도메인에서 cors 허용 (개발 및 테스트)
 // app.use(cors());
 
 // body parser
@@ -52,12 +52,6 @@ mongoose.connection.on('err', (err) => {
 app.use('/users', userRouter);
 app.use('/login', loginRouter);
 app.use('/post', postRouter);
-
-// 서버에 로그인한 정보 확인 시 전달 라우터
-app.get('/getuser', asyncHandler(async (req, res) => {
-    // req.user 전달
-    return res.json(req.user);
-}));
 
 // JWT LOGOUT : 쿠키에 있는 토큰을 비우고, 만료 기간 0 으로 설정
 app.get('/logout', reqUserCheck, async (req, res, next) => {
