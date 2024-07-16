@@ -8,11 +8,15 @@ const router = Router();
 
 // 서버에 로그인한 정보 확인 시 전달 라우터
 router.get('/getuser', asyncHandler(async (req, res) => {
+    if(!req.user){
+        console.log("logout 상태 (server check)")
+        return res.status(200).json({code: 400});
+    }
     const data = {email: req.user.email};
     // 프론트 요청에 대해 최신 닉네임 데이터를 넘겨주기
     const result = await userService.findByEmail({email: data.email});
     data.name = result.data.name;
-    return res.status(201).json({code: 200, data: data});
+    return res.status(200).json({code: 200, data: data});
 }));
 
 /* create (bodyData : required: true -> email, name, password */
