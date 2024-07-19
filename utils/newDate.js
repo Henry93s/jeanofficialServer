@@ -1,3 +1,7 @@
 module.exports = () => {
-    return new Date().toLocaleString();
+    const options = {
+        timeZone: 'Asia/Seoul',
+        hour12: true
+    };
+    return new Date().toLocaleString('ko-KR', options);
 }
