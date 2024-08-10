@@ -1,5 +1,5 @@
 module.exports = (req, res, next) => {
-    // 로그인 시 서버에서 한 번 더 체크하는 미들웨어
+    // 로그인 시 서버에서 한 번 더 서버에서도 양식을 체크하는 미들웨어
     const {email, password} = req.body;
     if(!email || !password){
         const error = new Error();

@@ -72,7 +72,7 @@ app.use((err, req, res, next) => {
     }
 });
 
-
-app.listen(process.env.PORT, () => {
+// 모든 네트워크에서 접속 가능하게 허용(같은 네트워크에서 확인하기 위함) 0.0.0.0
+app.listen(process.env.PORT, '0.0.0.0', () => {
     console.log(`${process.env.PORT} server port connected`);
 });
